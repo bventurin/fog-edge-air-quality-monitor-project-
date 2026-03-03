@@ -1,0 +1,28 @@
+# Build, test, and execution artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.env/
+myenv/
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.example
+
+# IDE and OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+.agent
+report/
+# Docker and Logs
+*.log
+docker-compose.override.yml

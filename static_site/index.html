@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Air Quality Monitor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body data-api-url="https://m7e2i1iuq0.execute-api.eu-west-1.amazonaws.com" data-refresh-interval="30">
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Air Quality</a>
+        <span class="navbar-text text-white px-3 d-none d-md-inline">House: house_001</span>
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <span class="nav-link text-white-50" id="clock"></span>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">Dashboard</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="#section-temperature">Temperature</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#section-humidity">Humidity</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#section-co2">CO₂</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#section-pm25">Air Quality</a></li>
+                    </ul>
+
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Settings</span>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item px-3 py-2">
+                            <label class="text-muted mb-1"><small>Time Range</small></label>
+                            <select id="timeRange" class="form-control form-control-sm">
+                                <option value="1" selected>Last 1 hour</option>
+                                <option value="6">Last 6 hours</option>
+                                <option value="24">Last 24 hours</option>
+                            </select>
+                        </li>
+                        <li class="nav-item px-3 py-2">
+                            <small class="text-muted">Auto-refresh: 30s</small>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card sensor-card" style="border-left-color: #EF4444;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Temperature</small>
+                                    <span class="badge badge-pill badge-normal text-white"
+                                        id="badge-temperature">Normal</span>
+                                </div>
+                                <div class="sensor-value mt-1" id="value-temperature" style="color: #EF4444;">—</div>
+                                <small class="text-muted">°C</small>
+                                <div class="mt-1"><small class="text-muted" id="time-temperature">No data</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card sensor-card" style="border-left-color: #3B82F6;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Humidity</small>
+                                    <span class="badge badge-pill badge-normal text-white"
+                                        id="badge-humidity">Normal</span>
+                                </div>
+                                <div class="sensor-value mt-1" id="value-humidity" style="color: #3B82F6;">—</div>
+                                <small class="text-muted">%</small>
+                                <div class="mt-1"><small class="text-muted" id="time-humidity">No data</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card sensor-card" style="border-left-color: #F59E0B;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">CO₂</small>
+                                    <span class="badge badge-pill badge-normal text-white" id="badge-co2">Normal</span>
+                                </div>
+                                <div class="sensor-value mt-1" id="value-co2" style="color: #F59E0B;">—</div>
+                                <small class="text-muted">ppm</small>
+                                <div class="mt-1"><small class="text-muted" id="time-co2">No data</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="card sensor-card" style="border-left-color: #8B5CF6;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Air Quality (PM2.5)</small>
+                                    <span class="badge badge-pill badge-normal text-white" id="badge-pm25">Normal</span>
+                                </div>
+                                <div class="sensor-value mt-1" id="value-pm25" style="color: #8B5CF6;">—</div>
+                                <small class="text-muted">µg/m³</small>
+                                <div class="mt-1"><small class="text-muted" id="time-pm25">No data</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div id="section-temperature" class="mb-4">
+                    <h5>Temperature (°C)</h5>
+                    <div class="card">
+                        <div class="card-body"><canvas id="chart-temperature" height="120"></canvas></div>
+                    </div>
+                </div>
+                <div id="section-humidity" class="mb-4">
+                    <h5>Humidity (%)</h5>
+                    <div class="card">
+                        <div class="card-body"><canvas id="chart-humidity" height="120"></canvas></div>
+                    </div>
+                </div>
+                <div id="section-co2" class="mb-4">
+                    <h5>CO₂ (ppm)</h5>
+                    <div class="card">
+                        <div class="card-body"><canvas id="chart-co2" height="120"></canvas></div>
+                    </div>
+                </div>
+                <div id="section-pm25" class="mb-4">
+                    <h5>Air Quality - PM2.5 (µg/m³)</h5>
+                    <div class="card">
+                        <div class="card-body"><canvas id="chart-pm25" height="120"></canvas></div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

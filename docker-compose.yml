@@ -1,0 +1,116 @@
+# Smart Home Air Quality Monitor
+# Docker Compose — Sensor + Fog Layer
+
+services:
+  # ─── MQTT Broker (Mosquitto) ───
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./fog/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iot-network
+
+  # ─── Sensor Containers ───
+  sensor-temperature:
+    build:
+      context: ./sensors
+    container_name: sensor-temperature
+    command: ["python", "-u", "temperature_sensor.py"]
+    volumes:
+      - ./sensors/temperature_sensor.py:/app/temperature_sensor.py
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - SENSOR_FREQUENCY=5
+      - HOUSE_ID=house_001
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - iot-network
+
+  sensor-humidity:
+    build:
+      context: ./sensors
+    container_name: sensor-humidity
+    command: ["python", "-u", "humidity_sensor.py"]
+    volumes:
+      - ./sensors/humidity_sensor.py:/app/humidity_sensor.py
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - SENSOR_FREQUENCY=5
+      - HOUSE_ID=house_001
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - iot-network
+
+  sensor-co2:
+    build:
+      context: ./sensors
+    container_name: sensor-co2
+    command: ["python", "-u", "co2_sensor.py"]
+    volumes:
+      - ./sensors/co2_sensor.py:/app/co2_sensor.py
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - SENSOR_FREQUENCY=5
+      - HOUSE_ID=house_001
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - iot-network
+
+  sensor-pm25:
+    build:
+      context: ./sensors
+    container_name: sensor-pm25
+    command: ["python", "-u", "pm25_sensor.py"]
+    volumes:
+      - ./sensors/pm25_sensor.py:/app/pm25_sensor.py
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - SENSOR_FREQUENCY=5
+      - HOUSE_ID=house_001
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - iot-network
+
+  # ─── Fog Node ───
+  fog-node:
+    build:
+      context: ./fog
+    container_name: fog-node
+    volumes:
+      - ~/.aws:/root/.aws:ro # mount local AWS credentials
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - DISPATCH_INTERVAL=30
+      - HOUSE_ID=house_001
+      - DYNAMODB_TABLE=${DYNAMODB_TABLE:-SensorReadings}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-eu-west-1}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - iot-network
+
+networks:
+  iot-network:
+    driver: bridge
