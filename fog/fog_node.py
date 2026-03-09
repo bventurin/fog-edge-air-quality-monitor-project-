@@ -163,7 +163,6 @@ def process_and_dispatch():
 def dispatch_to_cloud(readings: list[dict]):
     """
     Dispatch processed readings to AWS DynamoDB.
-    Each reading becomes an item keyed by device_sensor_id + timestamp.
     """
     if table is None:
         logger.error("DynamoDB table not initialised — skipping dispatch")
